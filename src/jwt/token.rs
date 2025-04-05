@@ -11,19 +11,21 @@ pub enum JwtError {
     ExpiredToken,
     #[error("Token creation failed")]
     TokenCreationFailed,
+    #[error("Token version mismatch")]
+    TokenVersionMismatch,
     #[error("Other error: {0}")]
     Other(String),
 }
 
-pub fn generate_access_token(user_id: &str) -> Result<String, JwtError> {
-    generate_token(user_id, "access")
+pub fn generate_access_token(user_id: &str, token_version: i32) -> Result<String, JwtError> {
+    generate_token(user_id, "access", token_version)
 }
 
-pub fn generate_refresh_token(user_id: &str) -> Result<String, JwtError> {
-    generate_token(user_id, "refresh")
+pub fn generate_refresh_token(user_id: &str, token_version: i32) -> Result<String, JwtError> {
+    generate_token(user_id, "refresh", token_version)
 }
 
-fn generate_token(user_id: &str, token_type: &str) -> Result<String, JwtError> {
+fn generate_token(user_id: &str, token_type: &str, token_version: i32) -> Result<String, JwtError> {
     let now = Utc::now();
     let exp = match token_type {
         "access" => now + Duration::minutes(JWT_CONFIG.access_token_exp_minutes),
@@ -38,6 +40,7 @@ fn generate_token(user_id: &str, token_type: &str) -> Result<String, JwtError> {
         iss: JWT_CONFIG.issuer.clone(),
         aud: "idment_system".into(),
         token_type: token_type.into(),
+        token_version, // 👈 新增
     };
 
     let secret = match token_type {
@@ -54,7 +57,11 @@ fn generate_token(user_id: &str, token_type: &str) -> Result<String, JwtError> {
     .map_err(|_| JwtError::TokenCreationFailed)
 }
 
-pub fn verify_token(token: &str, token_type: &str) -> Result<TokenClaims, JwtError> {
+pub fn verify_token(
+    token: &str,
+    token_type: &str,
+    expected_version: i32,
+) -> Result<TokenClaims, JwtError> {
     let secret = match token_type {
         "access" => &JWT_CONFIG.access_token_secret,
         "refresh" => &JWT_CONFIG.refresh_token_secret,
@@ -74,9 +81,15 @@ pub fn verify_token(token: &str, token_type: &str) -> Result<TokenClaims, JwtErr
         }
     })?;
 
-    if token_data.claims.token_type != token_type {
+    let claims = token_data.claims;
+
+    if claims.token_type != token_type {
         return Err(JwtError::InvalidToken);
     }
 
-    Ok(token_data.claims)
+    if claims.token_version != expected_version {
+        return Err(JwtError::InvalidToken); // 可以自定义 JwtError::TokenVersionMismatch
+    }
+
+    Ok(claims)
 }

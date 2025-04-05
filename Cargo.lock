@@ -550,6 +550,7 @@ dependencies = [
  "chrono",
  "config",
  "jsonwebtoken",
+ "once_cell",
  "pkcs8",
  "rsa",
  "serde",

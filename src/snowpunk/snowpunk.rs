@@ -47,6 +47,8 @@ pub async fn elapsed() -> Result<String, Box<dyn Error>> {
 }
 
 // 雪花朋克算法 20位 当下时间 + 15位 机器码 + 5位 函数处理完所需时间
+// 40位 的字符
+// 在 postgresql 的表达 id VARCHAR(40) PRIMARY KEY
 pub async fn snowpunk() -> Result<String, Box<dyn Error>> {
     let time_result = time().await?;
     let mac_addr_result = mac_addr().await?.replace([':', '-'], "");

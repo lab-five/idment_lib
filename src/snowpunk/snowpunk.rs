@@ -47,16 +47,16 @@ pub async fn elapsed() -> Result<String, Box<dyn Error>> {
 }
 
 // 雪花朋克算法 20位 当下时间 + 15位 机器码 + 5位 函数处理完所需时间
-pub async fn snowpunk() -> Result<u128, Box<dyn Error>> {
+pub async fn snowpunk() -> Result<String, Box<dyn Error>> {
     let time_result = time().await?;
     let mac_addr_result = mac_addr().await?.replace([':', '-'], "");
     let elapsed_result = elapsed().await?;
-    let combined_number = format!("{}{}{}", &time_result, &mac_addr_result, &elapsed_result);
-    let filtered_number: String = combined_number
-        .chars()
-        .filter(|c| c.is_ascii_digit())
-        .take(39)
-        .collect();
-    let parsed_number = filtered_number.parse::<u128>().unwrap_or(0);
-    Ok(parsed_number)
+    let snowpunk = format!("{}{}{}", &time_result, &mac_addr_result, &elapsed_result);
+    // let filtered_number: String = snowpunk
+    //     .chars()
+    //     .filter(|c| c.is_ascii_digit())
+    //     .take(39)
+    //     .collect();
+    // let parsed_number = filtered_number.parse::<u128>().unwrap_or(0);
+    Ok(snowpunk)
 }

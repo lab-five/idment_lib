@@ -1,10 +1,13 @@
 use jsonwebtoken::{DecodingKey, Validation, decode};
 
-use crate::jwt::{claims::TokenClaims, config::JWT_CONFIG};
+use crate::{
+    error::jwt_error::JwtError,
+    jwt::{claims::TokenClaims, config::JWT_CONFIG},
+};
 
 use super::{
     claims::TokenResponse,
-    token::{JwtError, generate_access_token, generate_refresh_token},
+    token::{generate_access_token, generate_refresh_token},
 };
 
 /// 仅解析 claims，不验证过期时间，签名校验可选（默认 false）
@@ -81,10 +84,11 @@ pub fn verify_token_with_version(
 /// 一次性生成 access/refresh token 并包装为响应体
 pub fn generate_token_response(
     user_id: &str,
+    app_name: &str,
     token_version: i32,
 ) -> Result<TokenResponse, JwtError> {
-    let access_token = generate_access_token(user_id, token_version)?;
-    let refresh_token = generate_refresh_token(user_id, token_version)?;
+    let access_token = generate_access_token(user_id, app_name, token_version)?;
+    let refresh_token = generate_refresh_token(user_id, app_name, token_version)?;
     let expires_in = (JWT_CONFIG.access_token_exp_minutes * 60) as usize;
 
     Ok(TokenResponse {

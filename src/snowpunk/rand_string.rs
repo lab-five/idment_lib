@@ -30,4 +30,13 @@ impl Rand {
             .collect();
         random_string
     }
+
+    pub async fn rand_number(length: usize) -> i32 {
+        let charset: Vec<char> = "0123456789".chars().collect();
+        let mut rng = rng();
+        let random: String = (1..length)
+            .map(|_| *charset.choose(&mut rng).unwrap())
+            .collect();
+        random.parse().expect("Invalid number generated")
+    }
 }

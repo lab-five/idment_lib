@@ -1,31 +1,32 @@
-use crate::jwt::{claims::TokenClaims, config::JWT_CONFIG};
+use crate::{
+    error::jwt_error::JwtError,
+    jwt::{claims::TokenClaims, config::JWT_CONFIG},
+};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, decode, encode};
-use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum JwtError {
-    #[error("Invalid token")]
-    InvalidToken,
-    #[error("Expired token")]
-    ExpiredToken,
-    #[error("Token creation failed")]
-    TokenCreationFailed,
-    #[error("Token version mismatch")]
-    TokenVersionMismatch,
-    #[error("Other error: {0}")]
-    Other(String),
+pub fn generate_access_token(
+    user_id: &str,
+    app_name: &str,
+    token_version: i32,
+) -> Result<String, JwtError> {
+    generate_token(user_id, "access", app_name, token_version)
 }
 
-pub fn generate_access_token(user_id: &str, token_version: i32) -> Result<String, JwtError> {
-    generate_token(user_id, "access", token_version)
+pub fn generate_refresh_token(
+    user_id: &str,
+    app_name: &str,
+    token_version: i32,
+) -> Result<String, JwtError> {
+    generate_token(user_id, "refresh", app_name, token_version)
 }
 
-pub fn generate_refresh_token(user_id: &str, token_version: i32) -> Result<String, JwtError> {
-    generate_token(user_id, "refresh", token_version)
-}
-
-fn generate_token(user_id: &str, token_type: &str, token_version: i32) -> Result<String, JwtError> {
+pub fn generate_token(
+    user_id: &str,
+    app_name: &str,
+    token_type: &str,
+    token_version: i32,
+) -> Result<String, JwtError> {
     let now = Utc::now();
     let exp = match token_type {
         "access" => now + Duration::minutes(JWT_CONFIG.access_token_exp_minutes),
@@ -38,9 +39,9 @@ fn generate_token(user_id: &str, token_type: &str, token_version: i32) -> Result
         exp: exp.timestamp() as usize,
         iat: now.timestamp() as usize,
         iss: JWT_CONFIG.issuer.clone(),
-        aud: "idment_system".into(),
+        aud: app_name.to_string(),
         token_type: token_type.into(),
-        token_version, // 👈 新增
+        token_version,
     };
 
     let secret = match token_type {

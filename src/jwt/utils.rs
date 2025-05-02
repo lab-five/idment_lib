@@ -5,11 +5,6 @@ use crate::{
     jwt::{claims::TokenClaims, config::JWT_CONFIG},
 };
 
-use super::{
-    claims::TokenResponse,
-    token::{generate_access_token, generate_refresh_token},
-};
-
 /// 仅解析 claims，不验证过期时间，签名校验可选（默认 false）
 /// 用于：获取 user_id、token_type 等场景
 pub fn decode_claims_unchecked(
@@ -81,19 +76,19 @@ pub fn verify_token_with_version(
     Ok(claims)
 }
 
-/// 一次性生成 access/refresh token 并包装为响应体
-pub fn generate_token_response(
-    user_id: &str,
-    app_name: &str,
-    token_version: i32,
-) -> Result<TokenResponse, JwtError> {
-    let access_token = generate_access_token(user_id, app_name, token_version)?;
-    let refresh_token = generate_refresh_token(user_id, app_name, token_version)?;
-    let expires_in = (JWT_CONFIG.access_token_exp_minutes * 60) as usize;
+// 一次性生成 access/refresh token 并包装为响应体
+// pub fn generate_token_response(
+//     user_id: &str,
+//     app_name: &str,
+//     token_version: i32,
+// ) -> Result<TokenResponse, JwtError> {
+//     let access_token = generate_access_token(user_id, app_name, token_version)?;
+//     let refresh_token = generate_refresh_token(user_id, app_name, token_version)?;
+//     let expires_in = (JWT_CONFIG.access_token_exp_minutes * 60) as usize;
 
-    Ok(TokenResponse {
-        access_token,
-        refresh_token,
-        expires_in,
-    })
-}
+//     Ok(TokenResponse {
+//         access_token,
+//         refresh_token,
+//         expires_in,
+//     })
+// }

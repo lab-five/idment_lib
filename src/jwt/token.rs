@@ -8,22 +8,25 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, deco
 pub fn generate_access_token(
     user_id: &str,
     app_name: &str,
+    device_id: i32,
     token_version: i32,
 ) -> Result<String, JwtError> {
-    generate_token(user_id, "access", app_name, token_version)
+    generate_token(user_id, app_name, device_id, "access", token_version)
 }
 
 pub fn generate_refresh_token(
     user_id: &str,
     app_name: &str,
+    device_id: i32,
     token_version: i32,
 ) -> Result<String, JwtError> {
-    generate_token(user_id, "refresh", app_name, token_version)
+    generate_token(user_id, app_name, device_id, "access", token_version)
 }
 
 pub fn generate_token(
     user_id: &str,
     app_name: &str,
+    device_id: i32,
     token_type: &str,
     token_version: i32,
 ) -> Result<String, JwtError> {
@@ -40,6 +43,7 @@ pub fn generate_token(
         iat: now.timestamp() as usize,
         iss: JWT_CONFIG.issuer.clone(),
         aud: app_name.to_string(),
+        device_id,
         token_type: token_type.into(),
         token_version,
     };

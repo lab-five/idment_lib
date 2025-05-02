@@ -16,6 +16,7 @@ pub struct UserRequest {
         message = "Phone number must be between 10 and 15 characters"
     ))]
     pub phone: Option<String>,
+    pub wechat: Option<String>,
     #[validate(length(min = 8, message = "Password must be at least 8 characters"))]
     pub password: String,
     pub app_name: String,
@@ -44,6 +45,7 @@ pub enum UserRequestType {
     Username, // 用户名登录
     Email,    // 邮箱登录
     Phone,    // 手机号登录
+    WeChat,
 }
 
 #[derive(Debug, Deserialize, Serialize, FromRow, Validate)]

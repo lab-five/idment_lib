@@ -10,11 +10,12 @@ use super::utils::decode_claims_unchecked;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenClaims {
-    pub sub: String,        // 用户ID
-    pub exp: usize,         // 令牌的过期时间 秒
-    pub iat: usize,         // 令牌的签发时间
-    pub iss: String,        // 令牌的签发者 通常是服务端标识或域名
-    pub aud: String,        // 令牌的目标接收者 可以是服务名、客户端ID
+    pub sub: String, // 用户ID
+    pub exp: usize,  // 令牌的过期时间 秒
+    pub iat: usize,  // 令牌的签发时间
+    pub iss: String, // 令牌的签发者 通常是服务端标识或域名
+    pub aud: String, // 令牌的目标接收者 可以是服务名、客户端ID
+    pub device_id: i32,
     pub token_type: String, // 令牌类型
     pub token_version: i32, // 新增字段
 }
